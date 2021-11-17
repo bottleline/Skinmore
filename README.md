@@ -27,7 +27,7 @@
 ## 주요 구현 장면
 
 ### 1. 애플/ 구글 Firebase 로그인 기능
-![image](https://user-images.githubusercontent.com/42457589/142138868-eedb7378-d6d4-4f3e-a4c9-42af36662670.png)
+![image](https://user-images.githubusercontent.com/42457589/142138987-8b4277f2-bcb7-400e-860c-46666270a1ab.png)
 
 애플/ 구글 아이디를 사용하여 로그인한다
 
