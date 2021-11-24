@@ -24,6 +24,11 @@
 - `Firebase/Auth`
 - `GoogleSignIn`
 
+ ## 적용한 주요 Layout
+- `CollectionView`
+- `NavigationController`
+- `SideMenuNavigationController`
+
  
 ## 주요 구현 장면
 
