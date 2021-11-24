@@ -53,7 +53,8 @@
 textField 의 InputView를 uipickerView 로 설정하여 조회를 원하는 날짜를 선택한다.
 
 ### 5. Horizontal CollectionView
-![image](https://user-images.githubusercontent.com/42457589/142139916-510472cd-f545-4cd3-83ac-bf90e71cebb7.png)  
+![skinmore3](https://user-images.githubusercontent.com/42457589/143208740-ef620c18-e24c-46e9-93d7-9e04ae430d0c.gif)
+
 수평 스크롤 컬렉션뷰를 이용하여 분석기록을 열람할수 있도록 한다.
 
 ### 6. 디테일 뷰 기능
