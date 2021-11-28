@@ -14,7 +14,6 @@
 ## 사용한 기술
 - `Swift 5`, `Xcode 13`
 - `GoogleMLKit/FaceDetection`
-- `RXSwift`
 - `lottie-ios`
 - `Alamofire`
 - `MBCircularProgressBar`
@@ -37,9 +36,100 @@
 
 ### 1. 애플/ 구글 Firebase 로그인 기능
 ![image](https://user-images.githubusercontent.com/42457589/142138987-8b4277f2-bcb7-400e-860c-46666270a1ab.png)
-
 애플/ 구글 아이디를 사용하여 로그인한다
+# 1. AppDelegate에 Firebase configure 메소드 호출
+``` swift
+func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        // Override point for customization after application launch.
+        FirebaseApp.configure()
+        return true
+    }
+```
+# 2. Google Id 로 로그인시 호출 메소드
+``` swift
+private func googleIDSetting(){
+        guard let clientID = FirebaseApp.app()?.options.clientID else {return}
+        let config = GIDConfiguration(clientID: clientID)
+        GIDSignIn.sharedInstance.signIn(with: config, presenting: self) { [unowned self] user, error in
+          if let error = error {
+            print(error)
+            return
+          }
 
+          guard
+            let authentication = user?.authentication,
+            let idToken = authentication.idToken
+          else {
+            return
+          }
+            Auth.auth().signIn(with: credential) { authResult, error in
+                showMainViewController()
+            }
+
+        }
+    }
+```
+# 3. Applee Id 로 로그인시 호출 메소드
+``` swift
+
+ func startSignInWithAppleFlow() {
+     let nonce = randomNonceString() 
+     currentNonce = nonce
+     let appleIDProvider = ASAuthorizationAppleIDProvider()
+     let request = appleIDProvider.createRequest()
+     request.requestedScopes = [.fullName, .email]
+     request.nonce = sha256(nonce)
+
+     let authorizationController = ASAuthorizationController(authorizationRequests: [request])
+     authorizationController.delegate = self
+     authorizationController.presentationContextProvider = self
+     authorizationController.performRequests()
+ }
+
+ private func sha256(_ input: String) -> String {
+     let inputData = Data(input.utf8)
+     let hashedData = SHA256.hash(data: inputData)
+     let hashString = hashedData.compactMap {
+         return String(format: "%02x", $0)
+     }.joined()
+
+     return hashString
+ }
+
+ // Adapted from https://auth0.com/docs/api-auth/tutorials/nonce#generate-a-cryptographically-random-nonce
+ private func randomNonceString(length: Int = 32) -> String {
+     precondition(length > 0)
+     let charset: Array<Character> =
+         Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
+     var result = ""
+     var remainingLength = length
+
+     while remainingLength > 0 {
+         let randoms: [UInt8] = (0 ..< 16).map { _ in
+             var random: UInt8 = 0
+             let errorCode = SecRandomCopyBytes(kSecRandomDefault, 1, &random)
+             if errorCode != errSecSuccess {
+                 fatalError("Unable to generate nonce. SecRandomCopyBytes failed with OSStatus \(errorCode)")
+             }
+             return random
+         }
+
+         randoms.forEach { random in
+             if remainingLength == 0 {
+                 return
+             }
+
+             if random < charset.count {
+                 result.append(charset[Int(random)])
+                 remainingLength -= 1
+             }
+         }
+     }
+
+     return result
+ }
+
+```
 ### 2. Lottie 이미지 적용
 ![skinmore1](https://user-images.githubusercontent.com/42457589/142139281-f9185ae2-247f-4dd4-98c6-597d9b86cc55.gif)  
 전반적인 UI 에 Lottie Image 를 적용하여 깔끔한 애니메이션 효과를 만든다.
