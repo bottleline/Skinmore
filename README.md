@@ -198,6 +198,77 @@ func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBu
                .....
 ```
 
+### 2. urlSession 을 통한 이미지전송
+``` swift
+       buffer = Data()
+       let httpBody = NSMutableData()
+       
+       let boundary = "XXXXX"
+       
+       for (i,fi) in faceImageArray.enumerated(){
+           guard let imageData = resizeImage(fi).jpegData(compressionQuality: 1.0) else {fatalError("Invalid Data")}
+           httpBody.append(convertFileData(fieldName: "faceImage",
+                                           fileName: "0\(i+4).jpg",
+                                           mimeType: "image/jpeg",
+                                           fileData: imageData,
+                                           using: boundary))
+       }
+
+       httpBody.appendString("--\(boundary)--")
+       
+       var agree = ""
+
+       var r = setURLRequest(urlString:urlString,userToken:Constants.AnalyzeToken.userToken)
+       r.httpBody = httpBody as Data
+
+       dataTask = buildSession().dataTask(with: r)
+       dataTask?.resume()
+```
+
+### 3. 수신 데이터를 decoding 하여 coredata 에 저장
+``` swift
+func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+        if error != nil{
+            print("fail to analyze")
+        }else{
+            guard let str = String(data:buffer, encoding: .utf8)else{
+                fatalError("Invalid Data")
+            }
+            
+            guard let jsonData = str.data(using: .utf8) else {
+               fatalError()
+            }
+            
+            let decoder = JSONDecoder()
+
+            do {
+                if self.h == nil{
+                    self.h = DataManager.shared.createEntity(date: self.timeStamp, memo: "") // coreData 에 저장할 Entity 객체 생성
+                }
+               let e = try decoder.decode(ResultDetail.self, from: jsonData) // 수신한 json 을 data struct 로 디코딩
+                
+                var p = DataManager.shared.createEntity(pore: e.result0.pore,header:h!, type:   1)
+                var pi = DataManager.shared.createEntity(pigment: e.result0.pigment,header:h!, type:  2)
+                var w = DataManager.shared.createEntity(wrinkle: e.result0.wrinkle,header:h!, type: 3)
+                DataManager.shared.mainContext.perform {
+                    self.h!.addToResultpore(p)
+                    self.h!.addToResultpig(pi)
+                    self.h!.addToResultwrinkle(w)
+                    DataManager.shared.saveMainContext()
+                } // 변경된 메인 컨텍스트를 저장 (변경된 컨텍스트를 저장해야지 변경사항이 적용됨)
+
+                DispatchQueue.global().asyncAfter(deadline: .now()+0.5) {
+                    NotificationCenter.default.post(name: NSNotification.Name.AnalyzeDidFinish, object: nil,userInfo: ["NewHeader" : self.h!])
+                }// 데이터 저장 Notification 
+
+            } catch {
+               print(error)
+            }
+        }
+        
+        
+    }
+```
 
 
 
