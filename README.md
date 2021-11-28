@@ -157,7 +157,46 @@ textField 의 InputView를 uipickerView 로 설정하여 조회를 원하는 날
 ![image](https://user-images.githubusercontent.com/42457589/142140332-c8e1146b-438b-4f07-b97c-f23e0a790cf9.png)  
 얼굴의 정면, 좌측면, 우측면을 촬영하여 피부 분석 서버로 전송한다.
 
-
+# 1. 얼굴인식
+``` swift
+import AVFoundation
+import MLKit
+@objc class PreviewController: UIViewController {
+  var faceDetector : FaceDetector?
+...
+let options = FaceDetectorOptions()
+        options.performanceMode = .accurate
+        options.landmarkMode = .all
+        options.classificationMode = .all
+        
+        // Real-time contour detection of multiple faces
+        // options.contourMode = .all
+        
+        faceDetector = FaceDetector.faceDetector(options: options)
+...
+func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+            
+            //얼굴 인식하기위해 sampleBuffer에서 이미지 추출후 VisionImage 로 변환 및 orientation 설정
+            let image = VisionImage(buffer: sampleBuffer)
+            image.orientation = imageOrientation(deviceOrientation: .faceUp/*UIDevice.current.orientation*/,cameraPosition: cameraPosition)
+            
+            weak var weakSelf = self
+            faceDetector!.process(image) { faces, error in
+                guard let _ = weakSelf else {return}
+                guard error == nil, let faces = faces, !faces.isEmpty else {return}
+                for face in faces {
+ 
+                if face.hasHeadEulerAngleX {
+                    let rotX = face.headEulerAngleX  // Head is rotated to the uptoward rotX degrees      
+                }
+                if face.hasHeadEulerAngleY {
+                    let rotY = face.headEulerAngleY  // Head is rotated to the right rotY degrees
+                }
+                if face.hasHeadEulerAngleZ {
+                    let rotZ = face.headEulerAngleZ  // Head is tilted sideways rotZ degrees
+                }
+               .....
+```
 
 
 
