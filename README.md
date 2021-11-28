@@ -157,7 +157,7 @@ textField 의 InputView를 uipickerView 로 설정하여 조회를 원하는 날
 ![image](https://user-images.githubusercontent.com/42457589/142140332-c8e1146b-438b-4f07-b97c-f23e0a790cf9.png)  
 얼굴의 정면, 좌측면, 우측면을 촬영하여 피부 분석 서버로 전송한다.
 
-# 1. 얼굴인식
+### 1. 얼굴인식
 ``` swift
 import AVFoundation
 import MLKit
